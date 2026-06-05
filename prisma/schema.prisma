@@ -1,0 +1,143 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  student
+  mentor
+  admin
+}
+
+enum UserStatus {
+  active
+  inactive
+  pending
+}
+
+model User {
+  id           BigInt     @id @default(autoincrement())
+  role         UserRole
+  name         String
+  email        String     @unique
+  phone        String?
+  passwordHash String?    @map("password_hash")
+  profilePhoto String?    @map("profile_photo")
+  status       UserStatus @default(pending)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  studentProfile StudentProfile?
+  mentorProfile  MentorProfile?
+
+  documents Document[]
+
+  @@map("users")
+}
+
+
+
+
+model StudentProfile {
+  id BigInt @id @default(autoincrement())
+
+  userId BigInt @unique @map("user_id")
+
+  educationLevel   String? @map("education_level")
+  preferredCountry String? @map("preferred_country")
+  careerInterest   String? @map("career_interest")
+  resumeUrl        String? @map("resume_url")
+  bio              String?
+
+  user User @relation(fields: [userId], references: [id])
+
+  bookings Booking[]
+
+  @@map("student_profiles")
+}
+
+
+
+
+model MentorProfile {
+  id BigInt @id @default(autoincrement())
+
+  userId BigInt @unique @map("user_id")
+
+  company         String?
+  designation     String?
+  experienceYears Int?    @map("experience_years")
+  bio             String?
+
+  linkedinUrl String?  @map("linkedin_url")
+  hourlyRate  Decimal? @map("hourly_rate")
+
+  ratingAvg  Float   @default(0) @map("rating_avg")
+  isVerified Boolean @default(false) @map("is_verified")
+
+  user User @relation(fields: [userId], references: [id])
+
+  bookings Booking[]
+
+  @@map("mentor_profiles")
+}
+
+
+
+enum BookingStatus {
+  pending
+  confirmed
+  completed
+  cancelled
+}
+
+enum SessionType {
+  online
+  offline
+}
+
+model Booking {
+  id BigInt @id @default(autoincrement())
+
+  studentId BigInt @map("student_id")
+  mentorId  BigInt @map("mentor_id")
+
+  bookingDate DateTime @map("booking_date")
+  bookingTime String   @map("booking_time")
+
+  sessionType SessionType   @map("session_type")
+  status      BookingStatus @default(pending)
+
+  amount Decimal?
+
+  student StudentProfile @relation(fields: [studentId], references: [id])
+  mentor  MentorProfile  @relation(fields: [mentorId], references: [id])
+
+  meetingLink String? @map("meeting_link")
+  notes       String?
+
+  @@map("bookings")
+}
+
+
+
+model Document {
+  id BigInt @id @default(autoincrement())
+
+  userId BigInt @map("user_id")
+
+  fileName String @map("file_name")
+  filePath String @map("file_path")
+
+  documentType String @map("document_type")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("documents")
+}
