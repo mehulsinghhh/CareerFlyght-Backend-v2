@@ -64,8 +64,31 @@ export const updateMentorProfile = async (
 
 
 
-export const getAllMentors = async () => {
-  const mentors = await prisma.mentorProfile.findMany({
+export const getAllMentors = async (
+  company?: string,
+  minExperience?: number,
+  maxRate?: number
+) => {
+  const where: any = {};
+
+  if (company) {
+    where.company = company;
+  }
+
+  if (minExperience) {
+    where.experienceYears = {
+      gte: minExperience,
+    };
+  }
+
+  if (maxRate) {
+    where.hourlyRate = {
+      lte: maxRate.toString(),
+    };
+  }
+
+  return prisma.mentorProfile.findMany({
+    where,
     include: {
       user: {
         select: {
@@ -77,8 +100,6 @@ export const getAllMentors = async () => {
       },
     },
   });
-
-  return mentors;
 };
 
 
@@ -106,3 +127,6 @@ export const getMentorById = async (mentorId: string) => {
 
     return mentor;
 };
+
+
+

@@ -101,7 +101,11 @@ export const getMentors = async (
   res: Response
 ) => {
   try {
-    const mentors = await getAllMentors();
+    const mentors = await getAllMentors(
+  req.query.company as string,
+  Number(req.query.minExperience),
+  Number(req.query.maxRate)
+);
 
     res.status(200).json({
   success: true,
@@ -125,7 +129,7 @@ export const getMentor = async (
     res: Response
 ) => {
     try {
-        const { id } = req.params;
+        const id = req.params.id as string;
 
         const mentor = await getMentorById(id);
 
@@ -142,3 +146,5 @@ export const getMentor = async (
         });
     }
 };
+
+
