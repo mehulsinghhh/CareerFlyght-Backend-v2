@@ -6,3 +6,9 @@ export interface CreateMentorProfileDto {
   linkedinUrl?: string;
   hourlyRate?: number;
 }
+
+export interface MentorFilters {
+  company?: string;
+  minExperience?: string;
+  maxRate?: string;
+}

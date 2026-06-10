@@ -101,7 +101,11 @@ export const getMentors = async (
   res: Response
 ) => {
   try {
-    const mentors = await getAllMentors();
+    const mentors = await getAllMentors(
+  req.query.company as string,
+  Number(req.query.minExperience),
+  Number(req.query.maxRate)
+);
 
     res.status(200).json({
   success: true,
