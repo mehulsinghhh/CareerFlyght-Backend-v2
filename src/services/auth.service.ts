@@ -54,10 +54,12 @@ export const loginUser = async (
   data: LoginUserDto
 ) => {
   const user = await prisma.user.findUnique({
-    where: {
-      email: data.email,
-    },
-  });
+  where: {
+    email: data.email,
+  },
+});
+
+console.log("USER:", user);
 
   if (!user) {
     throw new Error("Invalid credentials");
