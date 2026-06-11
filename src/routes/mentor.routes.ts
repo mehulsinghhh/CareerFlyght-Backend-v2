@@ -13,11 +13,6 @@ router.get(
 );
 
 
-router.get(
-    "/:id",
-    getMentor
-);
-
 router.post(
   "/profile",
   authenticate,
@@ -35,6 +30,11 @@ router.put(
   "/profile",
   authenticate,
   updateProfile
+);
+
+router.get(
+    "/:id",
+    getMentor
 );
 
 export default router;
