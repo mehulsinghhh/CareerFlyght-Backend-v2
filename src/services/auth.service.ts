@@ -64,11 +64,15 @@ console.log("USER:", user);
   if (!user) {
     throw new Error("Invalid credentials");
   }
+console.log("LOGIN PASSWORD:", data.password);
+console.log("HASH EXISTS:", !!user.passwordHash);
 
   const isPasswordValid = await bcrypt.compare(
     data.password,
     user.passwordHash || ""
   );
+
+  console.log("BCRYPT RESULT:", isPasswordValid);
 
   if (!isPasswordValid) {
     throw new Error("Invalid credentials");
