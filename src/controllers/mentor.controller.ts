@@ -44,23 +44,25 @@ export const getProfile = async (
     const profile =
       await getMentorProfile(userId);
 
+    if (!profile) {
+      return res.status(404).json({
+        success: false,
+        message: "Mentor profile not found",
+      });
+    }
+
     res.status(200).json({
-  success: true,
-  data: {
-    ...profile,
-    id: profile?.id.toString(),
-    userId: profile?.userId.toString(),
-  },
-});
-
+      success: true,
+      data: serializeBigInt(profile),
+    });
   } catch (error) {
-  console.log("GET MENTOR PROFILE ERROR:", error);
+    console.log("GET MENTOR PROFILE ERROR:", error);
 
-  res.status(500).json({
-    success: false,
-    message: "Failed to get profile",
-  });
-}
+    res.status(500).json({
+      success: false,
+      message: "Failed to get profile",
+    });
+  }
 };
 
 
@@ -131,14 +133,30 @@ export const getMentor = async (
     try {
         const id = req.params.id as string;
 
+        try {
+            BigInt(id);
+        } catch (e) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid mentor ID",
+            });
+        }
+
         const mentor = await getMentorById(id);
 
         res.status(200).json({
             success: true,
             data: serializeBigInt(mentor),
         });
-    } catch (error) {
+    } catch (error: any) {
         console.log("GET MENTOR ERROR:", error);
+
+        if (error.message === "Mentor not found") {
+            return res.status(404).json({
+                success: false,
+                message: error.message,
+            });
+        }
 
         res.status(500).json({
             success: false,
