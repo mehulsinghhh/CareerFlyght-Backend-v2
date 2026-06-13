@@ -1,5 +1,6 @@
 import prisma from "../config/prisma";
 import { CreateMentorProfileDto } from "../types/mentor.types";
+import { UserRole } from "@prisma/client";
 
 export const createMentorProfile = async (
   userId: string,
@@ -18,6 +19,7 @@ export const createMentorProfile = async (
 
   const profile =
     await prisma.mentorProfile.create({
+      
       data: {
         userId: BigInt(userId),
         company: data.company,
@@ -27,7 +29,16 @@ export const createMentorProfile = async (
         linkedinUrl: data.linkedinUrl,
         hourlyRate: data.hourlyRate,
       },
+      
     });
+    await prisma.user.update({
+  where: {
+    id: BigInt(userId),
+  },
+  data: {
+    role: UserRole.mentor,
+  },
+});
 
   return profile;
 };
