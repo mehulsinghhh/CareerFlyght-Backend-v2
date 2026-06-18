@@ -472,25 +472,46 @@ Role values returned by the API and used in payloads:
 
 ---
 
-## Frontend Integration Notes
+## Dashboard & Booking Capability Analysis
 
-### Consumed Endpoints
-Based on the current backend architecture, the following endpoints are expected to be consumed by the frontend:
-- `POST /auth/login` & `POST /auth/register` (Essential for entry)
-- `GET /mentors` (Mentor discovery page)
-- `GET /mentors/:id` (Mentor detail view)
-- `GET /users/me` (Profile header/settings)
+### 1. Student Dashboard
+Endpoints required to build the Student Dashboard page:
+- **GET /api/users/me**: To display the student's name, role, and profile photo.
+- **GET /api/users/profile**: To display education level and career interests.
+- **GET /api/bookings/my-bookings**: To list upcoming and past sessions.
 
-### Unused/Potentially Underutilized Endpoints
-- `GET /health`: Useful for load balancer or status page but usually not in the main UI.
-- `GET /auth/me`: Redundant if the frontend manages JWT payload parsing locally, but useful for server-side verification.
+### 2. Mentor Dashboard
+Endpoints required to build the Mentor Dashboard page:
+- **GET /api/users/me**: To display the mentor's name, role, and profile photo.
+- **GET /api/mentors/profile**: To display professional details like company, designation, and hourly rate.
+- **GET /api/bookings/mentor-bookings**: To list all session requests received.
 
-### Required for Student Dashboard
-- `GET /users/profile`: To show/edit student biography and education.
-- `GET /bookings/my-bookings`: To show upcoming and past sessions.
-- `POST /bookings`: To trigger a new session request from the mentor detail page.
+### 3. Student Bookings
+- **Route:** `POST /api/bookings`
+- **Auth Required:** Yes
+- **Required Role:** `student`
+- **Request Payload:**
+  ```json
+  {
+    "mentorId": "string (BigInt ID)",
+    "bookingDate": "string (ISO Date)",
+    "bookingTime": "string",
+    "sessionType": "online | offline",
+    "notes": "string (optional)"
+  }
+  ```
+- **Response Structure:** Object containing booking details including `id`, `status` (defaults to `pending`), and `mentorId`.
+- **Purpose:** Allows a student to request a mentorship session.
 
-### Required for Mentor Dashboard
-- `GET /mentors/profile`: To manage professional information (company, rate).
-- `GET /bookings/mentor-bookings`: Central hub for managing session requests.
-- `PUT /bookings/:id/status`: Action buttons for confirming/cancelling sessions.
+### 4. Mentor Bookings
+- **Route:** `PUT /api/bookings/:bookingId/status`
+- **Auth Required:** Yes
+- **Required Role:** `mentor`
+- **Request Payload:**
+  ```json
+  {
+    "status": "confirmed | completed | cancelled"
+  }
+  ```
+- **Response Structure:** Object containing the updated booking with the new `status`.
+- **Purpose:** Allows a mentor to manage their session requests.
