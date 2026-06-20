@@ -31,4 +31,31 @@ export const createStudentProfile = async (
   return profile;
 };
 
+export const upsertStudentProfile = async (
+  userId: string,
+  data: CreateStudentProfileDto
+) => {
+  const profile = await prisma.studentProfile.upsert({
+    where: {
+      userId: BigInt(userId),
+    },
+    update: {
+      educationLevel: data.educationLevel,
+      preferredCountry: data.preferredCountry,
+      careerInterest: data.careerInterest,
+      resumeUrl: data.resumeUrl,
+      bio: data.bio,
+    },
+    create: {
+      userId: BigInt(userId),
+      educationLevel: data.educationLevel,
+      preferredCountry: data.preferredCountry,
+      careerInterest: data.careerInterest,
+      resumeUrl: data.resumeUrl,
+      bio: data.bio,
+    },
+  });
+
+  return profile;
+};
 
