@@ -39,6 +39,8 @@ export const createBooking = async (
         bookingTime: data.bookingTime,
         sessionType: data.sessionType,
         notes: data.notes,
+
+        amount: mentorProfile.hourlyRate,
       },
     });
 
