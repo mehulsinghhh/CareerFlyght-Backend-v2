@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import prisma from "../config/prisma";
-import { createStudentProfile }
+import { createStudentProfile, upsertStudentProfile }
 from "../services/student.service";
 export const getProfile = async (
   req: Request,
@@ -112,27 +112,25 @@ export const updateStudentProfile = async (
   try {
     const userId = req.user?.userId;
 
-    const profile = await prisma.studentProfile.update({
-      where: {
-        userId: BigInt(userId),
-      },
-      data: req.body,
-    });
+    const profile = await upsertStudentProfile(
+      userId,
+      req.body
+    );
 
     res.status(200).json({
-  success: true,
-  data: {
-    ...profile,
-    id: profile.id.toString(),
-    userId: profile.userId.toString(),
-  },
-});
+      success: true,
+      data: {
+        ...profile,
+        id: profile.id.toString(),
+        userId: profile.userId.toString(),
+      },
+    });
   } catch (error) {
-  console.log("UPDATE ERROR:", error);
+    console.log("UPDATE ERROR:", error);
 
-  res.status(500).json({
-    success: false,
-    message: "Failed to update profile",
-  });
-}
+    res.status(500).json({
+      success: false,
+      message: "Failed to update profile",
+    });
+  }
 };
