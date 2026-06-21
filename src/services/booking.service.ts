@@ -64,6 +64,18 @@ export const getStudentBookings = async (userId: string) => {
     where: {
       studentId: studentProfile.id,
     },
+    include: {
+      mentor: {
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      },
+    },
     orderBy: {
       id: "desc",
     },
@@ -86,6 +98,18 @@ export const getMentorBookings = async (userId: string) => {
   return prisma.booking.findMany({
     where: {
       mentorId: mentorProfile.id,
+    },
+    include: {
+      student: {
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      },
     },
     orderBy: {
       id: "desc",
