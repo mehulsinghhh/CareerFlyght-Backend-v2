@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import { UserRole } from "@prisma/client";
+import { UserPayload } from "../types/auth.types";
 
 export const authenticate = (
   req: Request,
@@ -18,9 +20,9 @@ export const authenticate = (
     const decoded = jwt.verify(
       token,
       process.env.JWT_SECRET as string
-    );
+    ) as UserPayload;
 
-    (req as any).user = decoded;
+    req.user = decoded;
 
     next();
   } catch (error) {
@@ -31,7 +33,25 @@ export const authenticate = (
   }
 };
 
+export const authorize = (...allowedRoles: UserRole[]) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
 
+    if (!allowedRoles.includes(req.user.role)) {
+      return res.status(403).json({
+        success: false,
+        message: "Forbidden",
+      });
+    }
+
+    next();
+  };
+};
 
 export const me = async (
   req: Request,

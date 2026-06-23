@@ -1,9 +1,11 @@
 import { Router } from "express";
-import { authenticate } from "../middleware/auth.middleware";
+import { authenticate, authorize } from "../middleware/auth.middleware";
 import { getProfile } from "../controllers/user.controller";
 import { createProfile } from "../controllers/user.controller";
 import { getStudentProfile } from "../controllers/user.controller";
 import { updateStudentProfile } from "../controllers/user.controller";
+import { UserRole } from "@prisma/client";
+
 const router = Router();
 
 router.get(
@@ -16,6 +18,7 @@ router.get(
 router.get(
   "/profile",
   authenticate,
+  authorize(UserRole.student),
   getStudentProfile
 );
 
@@ -23,6 +26,7 @@ router.get(
 router.post(
   "/profile",
   authenticate,
+  authorize(UserRole.student),
   createProfile
 );
 
@@ -30,6 +34,7 @@ router.post(
 router.put(
   "/profile",
   authenticate,
+  authorize(UserRole.student),
   updateStudentProfile
 );
 
