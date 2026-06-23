@@ -7,7 +7,7 @@ export const getProfile = async (
   res: Response
 ) => {
   try {
-    const userId = req.user?.userId;
+    const userId = req.user.userId;
 
     const user = await prisma.user.findUnique({
       where: {
@@ -46,7 +46,7 @@ export const createProfile = async (
   res: Response
 ) => {
   try {
-    const userId = req.user?.userId;
+    const userId = req.user.userId;
 
     const profile =
       await createStudentProfile(
@@ -77,13 +77,20 @@ export const getStudentProfile = async (
   res: Response
 ) => {
   try {
-    const userId = req.user?.userId;
+    const userId = req.user.userId;
 
     const profile = await prisma.studentProfile.findUnique({
       where: {
         userId: BigInt(userId),
       },
     });
+
+    if (!profile) {
+      return res.status(404).json({
+        success: false,
+        message: "Profile not found",
+      });
+    }
 
     res.status(200).json({
   success: true,
@@ -110,7 +117,7 @@ export const updateStudentProfile = async (
   res: Response
 ) => {
   try {
-    const userId = req.user?.userId;
+    const userId = req.user.userId;
 
     const profile = await upsertStudentProfile(
       userId,

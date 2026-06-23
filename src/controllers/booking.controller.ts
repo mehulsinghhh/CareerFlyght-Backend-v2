@@ -10,7 +10,7 @@ export const createBookingController = async (
 ) => {
   try {
     
-    const userId = req.user?.userId;
+    const userId = req.user.userId;
 
     const booking = await createBooking(
       userId,
@@ -35,7 +35,7 @@ export const getMyBookingsController = async (
   res: Response
 ) => {
   try {
-    const userId = req.user?.userId;
+    const userId = req.user.userId;
 
     const bookings = await getStudentBookings(userId);
 
@@ -57,7 +57,7 @@ export const getMentorBookingsController = async (
   res: Response
 ) => {
   try {
-    const userId = req.user?.userId;
+    const userId = req.user.userId;
 
     const bookings =
       await getMentorBookings(userId);
@@ -81,7 +81,9 @@ export const updateBookingStatusController = async (
   res: Response
 ) => {
   try {
+    const userId = req.user.userId;
     const booking = await updateBookingStatus(
+      userId,
       req.params.bookingId as string,
       req.body.status as BookingStatus
     );
@@ -91,6 +93,13 @@ export const updateBookingStatusController = async (
       data: serializeBigInt(booking),
     });
   } catch (error: any) {
+    if (error.message.includes("Forbidden")) {
+        return res.status(403).json({
+            success: false,
+            message: "Forbidden",
+        });
+    }
+
     res.status(400).json({
       success: false,
       message: error.message,
