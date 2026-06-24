@@ -6,39 +6,28 @@ export const createMentorProfile = async (
   userId: string,
   data: CreateMentorProfileDto
 ) => {
-  const existingProfile =
-    await prisma.mentorProfile.findUnique({
-      where: {
-        userId: BigInt(userId),
-      },
-    });
-
-  if (existingProfile) {
-    throw new Error("Profile already exists");
-  }
-
-  const profile =
-    await prisma.mentorProfile.create({
-      
-      data: {
-        userId: BigInt(userId),
-        company: data.company,
-        designation: data.designation,
-        experienceYears: data.experienceYears,
-        bio: data.bio,
-        linkedinUrl: data.linkedinUrl,
-        hourlyRate: data.hourlyRate,
-      },
-      
-    });
-    await prisma.user.update({
-  where: {
-    id: BigInt(userId),
-  },
-  data: {
-    role: UserRole.mentor,
-  },
-});
+  const profile = await prisma.mentorProfile.upsert({
+    where: {
+      userId: BigInt(userId),
+    },
+    update: {
+      company: data.company,
+      designation: data.designation,
+      experienceYears: data.experienceYears,
+      bio: data.bio,
+      linkedinUrl: data.linkedinUrl,
+      hourlyRate: data.hourlyRate,
+    },
+    create: {
+      userId: BigInt(userId),
+      company: data.company,
+      designation: data.designation,
+      experienceYears: data.experienceYears,
+      bio: data.bio,
+      linkedinUrl: data.linkedinUrl,
+      hourlyRate: data.hourlyRate,
+    },
+  });
 
   return profile;
 };
