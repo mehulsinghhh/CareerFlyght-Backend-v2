@@ -17,7 +17,7 @@ export const createProfile = async (
         req.body
       );
 
-    res.status(201).json({
+    res.status(200).json({
       success: true,
       data: {
         ...profile,
