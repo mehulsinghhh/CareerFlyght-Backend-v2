@@ -121,8 +121,31 @@ export const getMentorBookings = async (userId: string) => {
 
 export const updateBookingStatus = async (
   bookingId: string,
-  status: BookingStatus
+  status: BookingStatus,
+  userId: string,
+  role: string
 ) => {
+  if (role !== "mentor") {
+    throw new Error("Forbidden");
+  }
+
+  const booking = await prisma.booking.findUnique({
+    where: {
+      id: BigInt(bookingId),
+    },
+    include: {
+      mentor: true,
+    },
+  });
+
+  if (!booking) {
+    throw new Error("Booking not found");
+  }
+
+  if (booking.mentor.userId !== BigInt(userId)) {
+    throw new Error("Forbidden");
+  }
+
   return prisma.booking.update({
     where: {
       id: BigInt(bookingId),
