@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { createBooking, getStudentBookings, getMentorBookings } from "../services/booking.service";
 import { serializeBigInt } from "../utils/serialize";
 import { updateBookingStatus } from "../services/booking.service";
@@ -6,7 +6,8 @@ import { BookingStatus } from "@prisma/client";
 
 export const createBookingController = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) => {
   try {
     
@@ -21,18 +22,16 @@ export const createBookingController = async (
       success: true,
       data: serializeBigInt(booking),
     });
-  } catch (error: any) {
-    res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+  } catch (error) {
+    next(error);
   }
 };
 
 
 export const getMyBookingsController = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) => {
   try {
     const userId = (req as any).user?.userId;
@@ -43,18 +42,16 @@ export const getMyBookingsController = async (
       success: true,
       data: serializeBigInt(bookings),
     });
-  } catch (error: any) {
-    res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+  } catch (error) {
+    next(error);
   }
 };
 
 
 export const getMentorBookingsController = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) => {
   try {
     const userId = (req as any).user?.userId;
@@ -66,11 +63,8 @@ export const getMentorBookingsController = async (
       success: true,
       data: serializeBigInt(bookings),
     });
-  } catch (error: any) {
-    res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+  } catch (error) {
+    next(error);
   }
 };
 
@@ -78,7 +72,8 @@ export const getMentorBookingsController = async (
 
 export const updateBookingStatusController = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) => {
   try {
     const userId = (req as any).user.userId;
@@ -95,17 +90,7 @@ export const updateBookingStatusController = async (
       success: true,
       data: serializeBigInt(booking),
     });
-  } catch (error: any) {
-    let statusCode = 400;
-    if (error.message === "Forbidden") {
-      statusCode = 403;
-    } else if (error.message === "Booking not found") {
-      statusCode = 404;
-    }
-
-    res.status(statusCode).json({
-      success: false,
-      message: error.message,
-    });
+  } catch (error) {
+    next(error);
   }
 };

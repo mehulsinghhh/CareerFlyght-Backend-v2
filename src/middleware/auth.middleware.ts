@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { UserRole } from "@prisma/client";
 import { UserPayload } from "../types/auth.types";
+import { AppError } from "../utils/app-error";
 
 export const authenticate = (
   req: Request,
@@ -12,7 +13,7 @@ export const authenticate = (
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {
-      throw new Error("Token missing");
+      throw new AppError("Token missing", 401);
     }
 
     const token = authHeader.split(" ")[1];
@@ -26,39 +27,23 @@ export const authenticate = (
 
     next();
   } catch (error) {
-    res.status(401).json({
-      success: false,
-      message: "Unauthorized",
-    });
+    if (error instanceof AppError) {
+      return next(error);
+    }
+    next(new AppError("Unauthorized", 401));
   }
 };
 
 export const authorize = (...allowedRoles: UserRole[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
     if (!req.user) {
-      return res.status(401).json({
-        success: false,
-        message: "Unauthorized",
-      });
+      return next(new AppError("Unauthorized", 401));
     }
 
     if (!allowedRoles.includes(req.user.role)) {
-      return res.status(403).json({
-        success: false,
-        message: "Forbidden",
-      });
+      return next(new AppError("Forbidden", 403));
     }
 
     next();
   };
-};
-
-export const me = async (
-  req: Request,
-  res: Response
-) => {
-  res.status(200).json({
-    success: true,
-    data: req.user,
-  });
 };

@@ -1,6 +1,7 @@
 import prisma from "../config/prisma";
 import { CreateMentorProfileDto } from "../types/mentor.types";
 import { UserRole } from "@prisma/client";
+import { AppError } from "../utils/app-error";
 
 export const createMentorProfile = async (
   userId: string,
@@ -122,11 +123,8 @@ export const getMentorById = async (mentorId: string) => {
     });
 
     if (!mentor) {
-        throw new Error("Mentor not found");
+        throw new AppError("Mentor not found", 404);
     }
 
     return mentor;
 };
-
-
-

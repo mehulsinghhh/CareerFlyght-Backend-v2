@@ -1,10 +1,13 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import prisma from "../config/prisma";
 import { createStudentProfile, upsertStudentProfile }
 from "../services/student.service";
+import { AppError } from "../utils/app-error";
+
 export const getProfile = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) => {
   try {
     const userId = req.user?.userId;
@@ -24,6 +27,10 @@ export const getProfile = async (
       },
     });
 
+    if (!user) {
+      throw new AppError("User not found", 404);
+    }
+
     res.status(200).json({
   success: true,
   data: {
@@ -32,10 +39,7 @@ export const getProfile = async (
   },
 });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Failed to fetch profile",
-    });
+    next(error);
   }
 };
 
@@ -43,7 +47,8 @@ export const getProfile = async (
 
 export const createProfile = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) => {
   try {
     const userId = req.user?.userId;
@@ -62,11 +67,8 @@ export const createProfile = async (
         userId: profile.userId.toString(),
       },
     });
-  } catch (error: any) {
-    res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+  } catch (error) {
+    next(error);
   }
 };
 
@@ -74,7 +76,8 @@ export const createProfile = async (
 
 export const getStudentProfile = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) => {
   try {
     const userId = req.user?.userId;
@@ -85,6 +88,10 @@ export const getStudentProfile = async (
       },
     });
 
+    if (!profile) {
+      throw new AppError("Student profile not found", 404);
+    }
+
     res.status(200).json({
   success: true,
   data: {
@@ -94,20 +101,16 @@ export const getStudentProfile = async (
   },
 });
   } catch (error) {
-  console.log(error);
-
-  res.status(500).json({
-    success: false,
-    message: "Failed to fetch profile",
-  });
-}
+    next(error);
+  }
 };
 
 
 
 export const updateStudentProfile = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) => {
   try {
     const userId = req.user?.userId;
@@ -126,11 +129,6 @@ export const updateStudentProfile = async (
       },
     });
   } catch (error) {
-    console.log("UPDATE ERROR:", error);
-
-    res.status(500).json({
-      success: false,
-      message: "Failed to update profile",
-    });
+    next(error);
   }
 };

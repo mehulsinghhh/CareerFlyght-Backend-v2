@@ -3,6 +3,8 @@
 import prisma from "../config/prisma";
 import { CreateBookingDto } from "../types/booking.types";
 import { BookingStatus } from "@prisma/client";
+import { AppError } from "../utils/app-error";
+
 export const createBooking = async (
   userId: string,
   data: CreateBookingDto
@@ -16,7 +18,7 @@ export const createBooking = async (
     });
 
   if (!studentProfile) {
-    throw new Error("Student profile not found");
+    throw new AppError("Student profile not found", 404);
   }
 
   const mentorProfile =
@@ -27,7 +29,7 @@ export const createBooking = async (
     });
 
   if (!mentorProfile) {
-    throw new Error("Mentor not found");
+    throw new AppError("Mentor not found", 404);
   }
 
   const booking =
@@ -57,7 +59,7 @@ export const getStudentBookings = async (userId: string) => {
     });
 
   if (!studentProfile) {
-    throw new Error("Student profile not found");
+    throw new AppError("Student profile not found", 404);
   }
 
   return prisma.booking.findMany({
@@ -92,7 +94,7 @@ export const getMentorBookings = async (userId: string) => {
     });
 
   if (!mentorProfile) {
-    throw new Error("Mentor profile not found");
+    throw new AppError("Mentor profile not found", 404);
   }
 
   return prisma.booking.findMany({
@@ -126,7 +128,7 @@ export const updateBookingStatus = async (
   role: string
 ) => {
   if (role !== "mentor") {
-    throw new Error("Forbidden");
+    throw new AppError("Forbidden", 403);
   }
 
   const booking = await prisma.booking.findUnique({
@@ -139,11 +141,11 @@ export const updateBookingStatus = async (
   });
 
   if (!booking) {
-    throw new Error("Booking not found");
+    throw new AppError("Booking not found", 404);
   }
 
   if (booking.mentor.userId !== BigInt(userId)) {
-    throw new Error("Forbidden");
+    throw new AppError("Forbidden", 403);
   }
 
   return prisma.booking.update({
