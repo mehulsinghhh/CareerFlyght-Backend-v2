@@ -1,5 +1,6 @@
 import prisma from "../config/prisma";
 import { CreateStudentProfileDto } from "../types/student.types";
+import { AppError } from "../utils/app-error";
 
 export const createStudentProfile = async (
   userId: string,
@@ -13,7 +14,7 @@ export const createStudentProfile = async (
     });
 
   if (existingProfile) {
-    throw new Error("Profile already exists");
+    throw new AppError("Profile already exists", 409);
   }
 
   const profile =
@@ -58,4 +59,3 @@ export const upsertStudentProfile = async (
 
   return profile;
 };
-

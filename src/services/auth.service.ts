@@ -3,6 +3,7 @@ import prisma from "../config/prisma";
 import { RegisterUserDto } from "../types/auth.types";
 import jwt from "jsonwebtoken";
 import { LoginUserDto } from "../types/auth.types";
+import { AppError } from "../utils/app-error";
 
 export const registerUser = async (
   data: RegisterUserDto
@@ -14,7 +15,7 @@ export const registerUser = async (
   });
 
   if (existingUser) {
-    throw new Error("Email already exists");
+    throw new AppError("Email already exists", 409);
   }
 
   const passwordHash = await bcrypt.hash(
@@ -59,23 +60,17 @@ export const loginUser = async (
   },
 });
 
-console.log("USER:", user);
-
   if (!user) {
-    throw new Error("Invalid credentials");
+    throw new AppError("Invalid credentials", 401);
   }
-console.log("LOGIN PASSWORD:", data.password);
-console.log("HASH EXISTS:", !!user.passwordHash);
 
   const isPasswordValid = await bcrypt.compare(
     data.password,
     user.passwordHash || ""
   );
 
-  console.log("BCRYPT RESULT:", isPasswordValid);
-
   if (!isPasswordValid) {
-    throw new Error("Invalid credentials");
+    throw new AppError("Invalid credentials", 401);
   }
 
   const token = jwt.sign(

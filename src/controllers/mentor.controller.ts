@@ -1,12 +1,14 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { createMentorProfile, getMentorProfile, updateMentorProfile } from "../services/mentor.service";
 import { serializeBigInt } from "../utils/serialize";
 import { getAllMentors } from "../services/mentor.service";
 import { getMentorById } from "../services/mentor.service";
+import { AppError } from "../utils/app-error";
 
 export const createProfile = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) => {
   try {
     const userId = req.user?.userId;
@@ -25,18 +27,16 @@ export const createProfile = async (
         userId: profile.userId.toString(),
       },
     });
-  } catch (error: any) {
-    res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+  } catch (error) {
+    next(error);
   }
 };
 
 
 export const getProfile = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) => {
   try {
     const userId = req.user?.userId;
@@ -45,10 +45,7 @@ export const getProfile = async (
       await getMentorProfile(userId);
 
     if (!profile) {
-      return res.status(404).json({
-        success: false,
-        message: "Mentor profile not found",
-      });
+      throw new AppError("Mentor profile not found", 404);
     }
 
     res.status(200).json({
@@ -56,12 +53,7 @@ export const getProfile = async (
       data: serializeBigInt(profile),
     });
   } catch (error) {
-    console.log("GET MENTOR PROFILE ERROR:", error);
-
-    res.status(500).json({
-      success: false,
-      message: "Failed to get profile",
-    });
+    next(error);
   }
 };
 
@@ -69,7 +61,8 @@ export const getProfile = async (
 
 export const updateProfile = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) => {
   try {
     const userId = req.user?.userId;
@@ -85,22 +78,15 @@ export const updateProfile = async (
       data: serializeBigInt(profile),
     });
   } catch (error) {
-    console.log(
-      "UPDATE MENTOR PROFILE ERROR:",
-      error
-    );
-
-    res.status(500).json({
-      success: false,
-      message: "Failed to update profile",
-    });
+    next(error);
   }
 };
 
 
 export const getMentors = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) => {
   try {
     const mentors = await getAllMentors(
@@ -115,12 +101,7 @@ export const getMentors = async (
 });
 
   } catch (error) {
-    console.log("GET MENTORS ERROR:", error);
-
-    res.status(500).json({
-      success: false,
-      message: "Failed to get mentors",
-    });
+    next(error);
   }
 };
 
@@ -128,7 +109,8 @@ export const getMentors = async (
 
 export const getMentor = async (
     req: Request,
-    res: Response
+    res: Response,
+    next: NextFunction
 ) => {
     try {
         const id = req.params.id as string;
@@ -136,10 +118,7 @@ export const getMentor = async (
         try {
             BigInt(id);
         } catch (e) {
-            return res.status(400).json({
-                success: false,
-                message: "Invalid mentor ID",
-            });
+            throw new AppError("Invalid mentor ID", 400);
         }
 
         const mentor = await getMentorById(id);
@@ -148,21 +127,7 @@ export const getMentor = async (
             success: true,
             data: serializeBigInt(mentor),
         });
-    } catch (error: any) {
-        console.log("GET MENTOR ERROR:", error);
-
-        if (error.message === "Mentor not found") {
-            return res.status(404).json({
-                success: false,
-                message: error.message,
-            });
-        }
-
-        res.status(500).json({
-            success: false,
-            message: "Failed to get mentor",
-        });
+    } catch (error) {
+        next(error);
     }
 };
-
-
