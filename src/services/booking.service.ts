@@ -28,8 +28,8 @@ export const createBooking = async (
       },
     });
 
-  if (!mentorProfile) {
-    throw new AppError("Mentor not found", 404);
+  if (!mentorProfile || mentorProfile.approvalStatus !== "APPROVED") {
+    throw new AppError("Mentor not found or not approved", 404);
   }
 
   const booking =

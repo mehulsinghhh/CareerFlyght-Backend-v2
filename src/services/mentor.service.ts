@@ -18,6 +18,7 @@ export const createMentorProfile = async (
       bio: data.bio,
       linkedinUrl: data.linkedinUrl,
       hourlyRate: data.hourlyRate,
+      approvalStatus: "PENDING",
     },
     create: {
       userId: BigInt(userId),
@@ -27,7 +28,14 @@ export const createMentorProfile = async (
       bio: data.bio,
       linkedinUrl: data.linkedinUrl,
       hourlyRate: data.hourlyRate,
+      approvalStatus: "PENDING",
     },
+  });
+
+  // Ensure user role is updated to mentor
+  await prisma.user.update({
+    where: { id: BigInt(userId) },
+    data: { role: UserRole.mentor },
   });
 
   return profile;
@@ -70,7 +78,9 @@ export const getAllMentors = async (
   minExperience?: number,
   maxRate?: number
 ) => {
-  const where: any = {};
+  const where: any = {
+    approvalStatus: "APPROVED",
+  };
 
   if (company) {
     where.company = company;
@@ -122,7 +132,7 @@ export const getMentorById = async (mentorId: string) => {
         },
     });
 
-    if (!mentor) {
+    if (!mentor || mentor.approvalStatus !== "APPROVED") {
         throw new AppError("Mentor not found", 404);
     }
 
