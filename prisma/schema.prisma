@@ -19,6 +19,12 @@ enum UserStatus {
   pending
 }
 
+enum MentorApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model User {
   id           BigInt     @id @default(autoincrement())
   role         UserRole
@@ -77,8 +83,12 @@ model MentorProfile {
   linkedinUrl String?  @map("linkedin_url")
   hourlyRate  Decimal? @map("hourly_rate")
 
-  ratingAvg  Float   @default(0) @map("rating_avg")
-  isVerified Boolean @default(false) @map("is_verified")
+  ratingAvg Float @default(0) @map("rating_avg")
+
+  approvalStatus MentorApprovalStatus @default(PENDING) @map("approval_status")
+  reviewNotes    String?              @db.Text @map("review_notes")
+  reviewedBy     BigInt?              @map("reviewed_by")
+  reviewedAt     DateTime?            @map("reviewed_at")
 
   user User @relation(fields: [userId], references: [id])
 
