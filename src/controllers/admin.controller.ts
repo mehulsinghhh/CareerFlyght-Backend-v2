@@ -3,7 +3,12 @@ import {
   getMentorsByStatus,
   updateMentorApprovalStatus,
   getDashboardStats,
-  getStudents as getStudentsService
+  getStudents as getStudentsService,
+  getStudentById,
+  getStudentBookings as getStudentBookingsService,
+  getAdminMentorById,
+  getBookings as getBookingsService,
+  getBookingById
 } from "../services/admin.service";
 import { serializeBigInt } from "../utils/serialize";
 import { MentorApprovalStatus } from "@prisma/client";
@@ -19,6 +24,104 @@ export const getDashboard = async (
     res.status(200).json({
       success: true,
       data: serializeBigInt(stats),
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getStudentDetail = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { studentId } = req.params;
+    const student = await getStudentById(studentId as string);
+
+    res.status(200).json({
+      success: true,
+      data: serializeBigInt(student),
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getStudentBookings = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { studentId } = req.params;
+    const bookings = await getStudentBookingsService(studentId as string);
+
+    res.status(200).json({
+      success: true,
+      data: serializeBigInt(bookings),
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getMentorDetail = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { mentorId } = req.params;
+    const mentor = await getAdminMentorById(mentorId as string);
+
+    res.status(200).json({
+      success: true,
+      data: serializeBigInt(mentor),
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAllBookings = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
+
+    const { totalItems, bookings } = await getBookingsService(page, limit);
+
+    res.status(200).json({
+      success: true,
+      data: serializeBigInt(bookings),
+      pagination: {
+        page,
+        limit,
+        totalItems,
+        totalPages: Math.ceil(totalItems / limit),
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getBookingDetail = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { bookingId } = req.params;
+    const booking = await getBookingById(bookingId as string);
+
+    res.status(200).json({
+      success: true,
+      data: serializeBigInt(booking),
     });
   } catch (error) {
     next(error);
