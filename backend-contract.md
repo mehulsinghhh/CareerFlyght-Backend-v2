@@ -188,6 +188,144 @@ Returns a paginated list of all students.
 }
 ```
 
+### GET /students/:studentId
+Returns the complete profile of a specific student.
+
+**Response:** `200 OK`
+```json
+{
+  "success": true,
+  "data": {
+    "id": "1",
+    "userId": "12",
+    "educationLevel": "Bachelors",
+    "preferredCountry": "USA",
+    "careerInterest": "Technology",
+    "resumeUrl": "https://example.com/resume.pdf",
+    "bio": "Ambitious student...",
+    "user": {
+      "id": "12",
+      "name": "Jane Smith",
+      "email": "jane@example.com",
+      "profilePhoto": null,
+      "createdAt": "2023-09-20T10:00:00Z"
+    }
+  }
+}
+```
+
+### GET /students/:studentId/bookings
+Returns all bookings for a specific student.
+
+**Response:** `200 OK`
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "50",
+      "studentId": "1",
+      "mentorId": "5",
+      "bookingDate": "2023-11-15T10:00:00Z",
+      "bookingTime": "10:00 AM",
+      "sessionType": "online",
+      "status": "confirmed",
+      "amount": "50.00",
+      "mentor": {
+        "id": "5",
+        "company": "Google",
+        "designation": "Staff Engineer",
+        "user": {
+          "id": "10",
+          "name": "John Doe",
+          "email": "john@example.com",
+          "profilePhoto": "https://example.com/photo.jpg"
+        }
+      }
+    }
+  ]
+}
+```
+
+---
+
+## 4. Bookings
+
+### GET /bookings
+Returns a paginated list of all bookings.
+
+**Query Parameters:**
+- `page`: (Optional) Default: `1`
+- `limit`: (Optional) Default: `20`
+
+**Response:** `200 OK`
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "50",
+      "studentId": "1",
+      "mentorId": "5",
+      "bookingDate": "2023-11-15T10:00:00Z",
+      "status": "confirmed",
+      "student": {
+        "id": "1",
+        "user": { "name": "Jane Smith" }
+      },
+      "mentor": {
+        "id": "5",
+        "user": { "name": "John Doe" }
+      }
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "totalItems": 280,
+    "totalPages": 14
+  }
+}
+```
+
+### GET /bookings/:bookingId
+Returns full details of a specific booking.
+
+**Response:** `200 OK`
+```json
+{
+  "success": true,
+  "data": {
+    "id": "50",
+    "studentId": "1",
+    "mentorId": "5",
+    "bookingDate": "2023-11-15T10:00:00Z",
+    "bookingTime": "10:00 AM",
+    "sessionType": "online",
+    "status": "confirmed",
+    "amount": "50.00",
+    "student": {
+      "id": "1",
+      "educationLevel": "Bachelors",
+      "user": {
+        "id": "12",
+        "name": "Jane Smith",
+        "email": "jane@example.com"
+      }
+    },
+    "mentor": {
+      "id": "5",
+      "company": "Google",
+      "user": {
+        "id": "10",
+        "name": "John Doe",
+        "email": "john@example.com"
+      }
+    }
+  }
+}
+```
+
 ---
 
 ## Error Responses

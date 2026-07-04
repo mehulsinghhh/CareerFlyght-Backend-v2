@@ -7,7 +7,12 @@ import {
   getPendingMentors,
   approveMentor,
   rejectMentor,
-  getStudents
+  getStudents,
+  getStudentDetail,
+  getStudentBookings,
+  getMentorDetail,
+  getAllBookings,
+  getBookingDetail
 } from "../controllers/admin.controller";
 import { UserRole } from "@prisma/client";
 
@@ -53,9 +58,39 @@ router.patch("/mentors/:mentorId/reject", rejectMentor);
 router.patch("/mentors/:mentorId/status", updateMentorStatus);
 
 /**
+ * @route GET /api/admin/mentors/:mentorId
+ * @desc Get complete mentor profile
+ */
+router.get("/mentors/:mentorId", getMentorDetail);
+
+/**
  * @route GET /api/admin/students
  * @desc Get paginated list of students
  */
 router.get("/students", getStudents);
+
+/**
+ * @route GET /api/admin/students/:studentId
+ * @desc Get complete student profile
+ */
+router.get("/students/:studentId", getStudentDetail);
+
+/**
+ * @route GET /api/admin/students/:studentId/bookings
+ * @desc Get all bookings for a student
+ */
+router.get("/students/:studentId/bookings", getStudentBookings);
+
+/**
+ * @route GET /api/admin/bookings
+ * @desc Get paginated list of bookings
+ */
+router.get("/bookings", getAllBookings);
+
+/**
+ * @route GET /api/admin/bookings/:bookingId
+ * @desc Get complete booking detail
+ */
+router.get("/bookings/:bookingId", getBookingDetail);
 
 export default router;
